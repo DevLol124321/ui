@@ -5288,28 +5288,19 @@ function NextUI:CreateWindow(o)
 	end)
 
 	do
-		local mb = o.MobileButton
-		local want = mb == true or type(mb) == "table"
-		if mb == "Auto" then want = UIS.TouchEnabled and not UIS.KeyboardEnabled end
-		if want then
-			local cfg = type(mb) == "table" and mb or {}
-			local bsize = cfg.Size or 48
-			local half = bsize / 2
-			local draggable = cfg.Draggable ~= false
-			local mbtn = New("ImageButton", {
-    Name = "MobileButton",
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    Size = UDim2.fromOffset(bsize, bsize),
-    Position = cfg.Position or UDim2.new(1, -(half + 14), 0.35, 0),
-    BackgroundTransparency = 1,
-    Image = "https://i.ibb.co/0p8DsVF0/Neon-Chrome-Z-Esports-Emblem.png",
-    ScaleType = Enum.ScaleType.Fit,
-    AutoButtonColor = false,
-    Active = true,
-    Visible = false,
-    ZIndex = 100,
-    Parent = gui,
-}) { New("UICorner", { CornerRadius = UDim.new(1, 0) }), Stroke("Border", 0.3) })
+			local mbtn = New("TextButton", {
+				Name = "MobileButton", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(bsize, bsize),
+				Position = cfg.Position or UDim2.new(1, -(half + 14), 0.35, 0),
+				BackgroundColor3 = "$Accent", BackgroundTransparency = 0.05, Text = "", AutoButtonColor = false,
+				Active = true, Visible = false, ZIndex = 100, Parent = gui,
+			}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }), Stroke("Border", 0.3) })
+			local mic = Icon(mbtn, cfg.Icon or "menu", math.floor(bsize * 0.5), "OnAccent", {
+				AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 101,
+			})
+			if not mic.Visible then
+				mic:Destroy()
+				mbtn.Text, mbtn.Font, mbtn.TextSize, mbtn.TextColor3 = "UI", T.FontBold, fs(14), T.OnAccent
+			end
 			
 			win.MobileButton = mbtn
 
