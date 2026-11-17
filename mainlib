@@ -1834,7 +1834,9 @@ local function Checkbox(props)
 end
 
 local function Elements(self, getParent)
-	local function hgt(o) return (o.Description and o.Description ~= "") and 58 or 40 end
+	-- Give descriptions room to wrap instead of forcing every description into one line.
+	-- The taller row is only used when a description is present.
+	local function hgt(o) return (o.Description and o.Description ~= "") and 82 or 40 end
 
 	local function row(h)
 		return New("Frame", {
@@ -1860,10 +1862,12 @@ local function Elements(self, getParent)
 		attachBadge(label, badge, 0, 20)
 		index(o.Title or o.Name, o.Description, f)
 		if d then
-			attachTip(Text(f, o.Description, {
-				Position = UDim2.fromOffset(0, 36), Size = UDim2.new(1, -rpad, 0, 14), TextSize = 11,
-				TextColor3 = "$Sub", TextTransparency = 0.35, TextTruncate = Enum.TextTruncate.AtEnd,
-			}), o.Description, true)
+			local desc = Text(f, o.Description, {
+				Position = UDim2.fromOffset(0, 34), Size = UDim2.new(1, -rpad, 0, 44), TextSize = 11,
+				TextColor3 = "$Sub", TextTransparency = 0.2, TextWrapped = true,
+				TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Top,
+			})
+			attachTip(desc, o.Description, true)
 		end
 		return label
 	end
@@ -2049,7 +2053,7 @@ local function Elements(self, getParent)
 
 	function self:AddButton(o)
 		local d = o.Description and o.Description ~= ""
-		local h = d and 60 or 38
+		local h = d and 82 or 38
 		local holdTime = o.HoldTime or (type(o.Hold) == "number" and o.Hold) or (o.Hold and 1.2) or nil
 		if holdTime then holdTime = math.max(holdTime, 0.2) end
 		local f = New("Frame", {
@@ -2071,10 +2075,12 @@ local function Elements(self, getParent)
 		attachBadge(btnLabel, badge, 12, d and 19 or h / 2)
 		index(o.Title or o.Name, o.Description, f)
 		if d then
-			attachTip(Text(f, o.Description, {
-				Position = UDim2.fromOffset(12, 32), Size = UDim2.new(1, -44, 0, 16), TextSize = 12,
-				TextColor3 = "$Sub", TextTruncate = Enum.TextTruncate.AtEnd,
-			}), o.Description, true)
+			local desc = Text(f, o.Description, {
+				Position = UDim2.fromOffset(12, 32), Size = UDim2.new(1, -44, 0, 42), TextSize = 11,
+				TextColor3 = "$Sub", TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
+				TextYAlignment = Enum.TextYAlignment.Top,
+			})
+			attachTip(desc, o.Description, true)
 		end
 		local chevron = Icon(f, holdTime and "fingerprint" or "chevron-right", 14, "Sub", { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0) })
 		local ring, spin = Spinner(f, 14, { Position = UDim2.new(1, -17, 0.5, 0) })
