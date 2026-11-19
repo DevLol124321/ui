@@ -12,6 +12,7 @@ if genv.NextUI and genv.NextUI.Destroy then
 	pcall(genv.NextUI.Destroy, genv.NextUI)
 end
 
+
 local function C(r, g, b) return Color3.fromRGB(r, g, b) end
 
 local INTRO_ICON = "https://i.ibb.co/0p8DsVF0/Neon-Chrome-Z-Esports-Emblem.png"
