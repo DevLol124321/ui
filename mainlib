@@ -1858,7 +1858,7 @@ local function Elements(self, getParent)
 			Position = UDim2.fromOffset(0, 0),
 			Size = UDim2.new(1, -(rpad + (bw and (bw + 6) or 0)), 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Parent = f,
-		}, { List(2), Pad(0, 4, 0, 8), New("UISizeConstraint", { MinSize = Vector2.new(60, 0) }) })
+		}, { List(2), Pad(0, NextUI.MobileCompact and 2 or 4, 0, NextUI.MobileCompact and 5 or 8), New("UISizeConstraint", { MinSize = Vector2.new(60, 0) }) })
 		local label = Text(box, TC(o.Title or o.Name or ""), {
 			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1,
 			TextColor3 = static and T.Sub or "$Sub", TextWrapped = true,
@@ -3815,6 +3815,9 @@ function NextUI:CreateWindow(o)
 	setupTooltip(gui)
 
 	local size = o.Size or Vector2.new(820, 520)
+	local touchOnly = UIS.TouchEnabled and not UIS.KeyboardEnabled
+	local logoHeight = touchOnly and 56 or 64
+	local sideTop = logoHeight + 6
 	local tabW = o.TabWidth or 200
 	local fullW, miniW = tabW, o.CollapsedWidth or 60
 	local collapsed = false
@@ -3848,7 +3851,8 @@ function NextUI:CreateWindow(o)
 		local w, h = main.Size.X.Offset, main.Size.Y.Offset
 		local fitX = math.max(vp.X - 20, 1)
 		local fitY = math.max(vp.Y - 20, 1)
-		scale.Scale = math.clamp(math.min(1, fitX / math.max(w, 1), fitY / math.max(h, 1)), 0.35, 1)
+		local densityScale = touchOnly and 0.94 or 1
+		scale.Scale = math.clamp(math.min(densityScale, fitX / math.max(w, 1), fitY / math.max(h, 1)), 0.35, 1)
 	end
 	updateResponsiveScale()
 	connect(main:GetPropertyChangedSignal("Size"), updateResponsiveScale)
@@ -3889,7 +3893,7 @@ function NextUI:CreateWindow(o)
 		BackgroundColor3 = "$Border", BorderSizePixel = 0, Parent = sidebar,
 	})
 	local logoClip = New("Frame", {
-		Size = UDim2.new(1, 0, 0, 64), BackgroundTransparency = 1, BorderSizePixel = 0, ClipsDescendants = true, Parent = sidebar,
+		Size = UDim2.new(1, 0, 0, logoHeight), BackgroundTransparency = 1, BorderSizePixel = 0, ClipsDescendants = true, Parent = sidebar,
 	})
 	local logo = New("Frame", {
 		Size = UDim2.new(1, 12, 1, 0), BackgroundColor3 = "$Accent", BorderSizePixel = 0, Parent = logoClip,
@@ -3901,7 +3905,7 @@ function NextUI:CreateWindow(o)
 		}),
 	})
 	local logoText = Text(logoClip, TC(o.Title or o.Name or "ZumHub"), {
-		Position = UDim2.fromOffset(18, 0), Size = UDim2.new(1, -26, 1, 0), Font = o.LogoFont or T.FontBold,
+		Position = UDim2.fromOffset(14, 0), Size = UDim2.new(1, -18, 1, 0), Font = o.LogoFont or T.FontBold,
 		TextSize = 22, TextColor3 = "$Accent", TextScaled = true, TextWrapped = false,
 		TextTruncate = Enum.TextTruncate.None,
 	})
@@ -3926,7 +3930,7 @@ function NextUI:CreateWindow(o)
 	local profileH = o.Profile ~= false and 56 or 0
 	local profileInfo
 	local side = New("ScrollingFrame", {
-		Position = UDim2.fromOffset(0, 70), Size = UDim2.new(1, 0, 1, -(70 + profileH)), BackgroundTransparency = 1, BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, sideTop), Size = UDim2.new(1, 0, 1, -(sideTop + profileH)), BackgroundTransparency = 1, BorderSizePixel = 0,
 		ScrollBarThickness = 0, AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Parent = sidebar,
 	}, { List(4), Pad(12, 6, 12, 12) })
 	if profileH > 0 then
@@ -4129,8 +4133,8 @@ function NextUI:CreateWindow(o)
 		else
 			logoText.Text = logoFull
 			logoText.TextXAlignment = Enum.TextXAlignment.Left
-			logoText.Position = UDim2.fromOffset(18, 0)
-			logoText.Size = UDim2.new(1, -26, 1, 0)
+			logoText.Position = UDim2.fromOffset(14, 0)
+			logoText.Size = UDim2.new(1, -18, 1, 0)
 		end
 		applyLogo()
 		if profileInfo then profileInfo.Visible = not collapsed end
