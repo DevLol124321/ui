@@ -1,3 +1,4 @@
+```
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -969,9 +970,7 @@ end
 local function attachTip(label, full, noCut, max)
 	local text = tostring(full or "")
 	label.Text = text
-	if label.TextTruncate == Enum.TextTruncate.None then
-		label.TextTruncate = Enum.TextTruncate.AtEnd
-	end
+	-- Do not override TextTruncate here; individual labels choose wrapping or truncation.
 
 	table.insert(NextUI._tips, { label = label, text = text, cut = false })
 end
@@ -1840,7 +1839,8 @@ local function Elements(self, getParent)
 
 	local function row(h)
 		return New("Frame", {
-			Size = UDim2.new(1, 0, 0, h), BackgroundTransparency = 1, ClipsDescendants = true, Parent = getParent(),
+			Size = UDim2.new(1, 0, 0, h), AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1, ClipsDescendants = false, Parent = getParent(),
 		})
 	end
 
@@ -1854,8 +1854,13 @@ local function Elements(self, getParent)
 	local function head(f, o, rpad, h, static)
 		local d = h > 56
 		local badge, bw = Badge(f, o.Badge)
-		local label = Text(f, TC(o.Title or o.Name or ""), {
-			Position = UDim2.fromOffset(0, d and 5 or 0), Size = UDim2.new(1, -(rpad + (bw and (bw + 6) or 0)), 0, d and 40 or 52),
+		local box = New("Frame", {
+			Position = UDim2.fromOffset(0, 0),
+			Size = UDim2.new(1, -(rpad + (bw and (bw + 6) or 0)), 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Parent = f,
+		}, { List(2), Pad(0, 4, 0, 8), New("UISizeConstraint", { MinSize = Vector2.new(60, 0) }) })
+		local label = Text(box, TC(o.Title or o.Name or ""), {
+			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1,
 			TextColor3 = static and T.Sub or "$Sub", TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Center,
 		})
@@ -1865,8 +1870,8 @@ local function Elements(self, getParent)
 		attachBadge(label, badge, 0, 20)
 		index(o.Title or o.Name, o.Description, f)
 		if d then
-			local desc = Text(f, o.Description, {
-				Position = UDim2.fromOffset(0, 48), Size = UDim2.new(1, -rpad, 0, 46), TextSize = 11,
+			local desc = Text(box, o.Description, {
+				Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, TextSize = 11,
 				TextColor3 = "$Sub", TextTransparency = 0.2, TextWrapped = true,
 				TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Top,
 			})
@@ -2029,7 +2034,10 @@ local function Elements(self, getParent)
 	end
 
 	function self:AddTitle(text)
-		local l = Text(getParent(), TC(text), { Size = UDim2.new(1, 0, 0, 26), Font = T.FontBold, TextSize = 15 })
+		local l = Text(getParent(), TC(text), {
+			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+			TextWrapped = true, TextTruncate = Enum.TextTruncate.None, Font = T.FontBold, TextSize = 15,
+		})
 		return { Set = function(_, s) l.Text = TC(s) end }
 	end
 
@@ -2038,7 +2046,10 @@ local function Elements(self, getParent)
 	end
 
 	function self:AddLabel(text)
-		local l = Text(getParent(), text, { Size = UDim2.new(1, 0, 0, 20), TextColor3 = "$Sub", TextSize = 12 })
+		local l = Text(getParent(), text, {
+			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+			TextWrapped = true, TextTruncate = Enum.TextTruncate.None, TextColor3 = "$Sub", TextSize = 12,
+		})
 		return { Set = function(_, s) l.Text = s end }
 	end
 
@@ -2046,7 +2057,7 @@ local function Elements(self, getParent)
 		local f = New("Frame", {
 			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = "$Element", Parent = getParent(),
 		}, { Corner(5), Stroke("Border", 0.3), Pad(12, 10, 12, 12), List(4) })
-		local title = Text(f, TC(o.Title or ""), { Size = UDim2.new(1, 0, 0, 18), Font = T.FontBold })
+		local title = Text(f, TC(o.Title or ""), { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true, TextTruncate = Enum.TextTruncate.None, Font = T.FontBold })
 		local body = Text(f, o.Content or "", {
 			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true,
 			TextColor3 = "$Sub", TextSize = 12, TextYAlignment = Enum.TextYAlignment.Top,
@@ -2060,7 +2071,8 @@ local function Elements(self, getParent)
 		local holdTime = o.HoldTime or (type(o.Hold) == "number" and o.Hold) or (o.Hold and 1.2) or nil
 		if holdTime then holdTime = math.max(holdTime, 0.2) end
 		local f = New("Frame", {
-			Size = UDim2.new(1, 0, 0, h), BackgroundColor3 = "$Element", ClipsDescendants = true, Parent = getParent(),
+			Size = UDim2.new(1, 0, 0, h), AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundColor3 = "$Element", ClipsDescendants = false, Parent = getParent(),
 		}, { Corner(5), Stroke("Border", 0.3) })
 		local fill
 		if holdTime then
@@ -2070,18 +2082,23 @@ local function Elements(self, getParent)
 			}, { Corner(5) })
 		end
 		local badge, bw = Badge(f, o.Badge)
-		local btnLabel = Text(f, TC(o.Title or o.Name or ""), {
-			Position = UDim2.fromOffset(12, d and 5 or 0), Size = UDim2.new(1, -(40 + (bw and (bw + 6) or 0)), 0, d and 42 or 52),
-			TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
+		local box = New("Frame", {
+			Position = UDim2.fromOffset(12, 0),
+			Size = UDim2.new(1, -(40 + (bw and (bw + 6) or 0)), 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Parent = f,
+		}, { List(2), Pad(0, 8, 0, 8), New("UISizeConstraint", { MinSize = Vector2.new(60, 0) }) })
+		local btnLabel = Text(box, TC(o.Title or o.Name or ""), {
+			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1,
+			TextWrapped = true, TextTruncate = Enum.TextTruncate.None, TextYAlignment = Enum.TextYAlignment.Center,
 		})
 		attachTip(btnLabel, TC(o.Title or o.Name or ""), true, NextUI.ButtonTipLength)
 		btnLabel.TextWrapped = true
 		btnLabel.TextTruncate = Enum.TextTruncate.None
-		attachBadge(btnLabel, badge, 12, d and 22 or h / 2)
+		attachBadge(btnLabel, badge, 12, 28)
 		index(o.Title or o.Name, o.Description, f)
 		if d then
-			local desc = Text(f, o.Description, {
-				Position = UDim2.fromOffset(12, 52), Size = UDim2.new(1, -44, 0, 44), TextSize = 11,
+			local desc = Text(box, o.Description, {
+				Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, TextSize = 11,
 				TextColor3 = "$Sub", TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
 				TextYAlignment = Enum.TextYAlignment.Top,
 			})
@@ -2179,7 +2196,7 @@ local function Elements(self, getParent)
 		local hasBind = o.Keybind ~= nil or o.Bind == true
 		local boxW = o.Style == "Switch" and 34 or 20
 		local extraW = (o.Options ~= nil and 28 or 0) + (o.Color ~= nil and 28 or 0)
-		local label = head(f, o, boxW + 14 + extraW + (hasBind and 100 or 0), h, true)
+		local label = head(f, o, boxW + 14 + extraW + (hasBind and 100 or 0), h, true, true)
 		local paintBox
 		if o.Style == "Switch" then
 			paintBox = Switch(right(f, 34, 18, { BackgroundColor3 = "$Off" }))
@@ -2263,7 +2280,7 @@ local function Elements(self, getParent)
 
 		local barW = math.max(30, tonumber(o.BarWidth) or (hasToggle and 52 or 96))
 		local barX = hasToggle and 48 or 4
-		head(f, o, barX + barW + 14 + 44 + 8, h)
+		head(f, o, barX + barW + 14 + 44 + 8, h, nil, true)
 
 		local val = New("TextBox", right(f, 44, 20, {
 			Position = UDim2.new(1, -(barX + barW + 14), 0, 20), BackgroundTransparency = 1, Text = "", Font = T.Font, TextSize = 11,
@@ -2357,7 +2374,7 @@ local function Elements(self, getParent)
 		local min, max, inc = o.Min or 0, o.Max or 100, o.Increment or 1
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 150, h)
+		head(f, o, 150, h, nil, true)
 		local frame = New("Frame", right(f, 132, 26, { BackgroundColor3 = "$Element" }), { Corner(4), Stroke("Border", 0.3) })
 		local function stepper(text, pos)
 			local b = New("TextButton", {
@@ -2418,7 +2435,7 @@ local function Elements(self, getParent)
 		local values, multi = o.Values or {}, o.Multi == true
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 126, h)
+		head(f, o, 126, h, nil, true)
 		local boxStroke = Stroke("Border", 0.3)
 		local box = New("Frame", right(f, 112, 26, { BackgroundColor3 = "$Element" }), { Corner(4), boxStroke })
 		local shown = Text(box, "", {
@@ -2650,7 +2667,7 @@ local function Elements(self, getParent)
 			fire(true)
 		end
 
-		New("TextButton", { Size = UDim2.new(1, 0, 0, h), BackgroundTransparency = 1, Text = "", Parent = f }).MouseButton1Click:Connect(function()
+		New("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", Parent = f }).MouseButton1Click:Connect(function()
 			NextUI._toggleDrop(f)
 		end)
 		NextUI:_AddPaint(paint, f)
@@ -2664,7 +2681,7 @@ local function Elements(self, getParent)
 	function self:AddTextbox(o)
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 126, h)
+		head(f, o, 126, h, nil, true)
 
 		local st = Stroke("Border", 0.3)
 		local frame = New("Frame", right(f, 112, 26, { BackgroundColor3 = "$Element" }), { Corner(4), st })
@@ -2693,7 +2710,7 @@ local function Elements(self, getParent)
 	function self:AddKeybind(o)
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 108, h)
+		head(f, o, 108, h, nil, true)
 		local mode = o.Mode or "Press"
 		local key, listening, state = o.Default, false, false
 		local cap = Keycap(f, { Position = UDim2.new(1, -4, 0, 20) })
@@ -2758,7 +2775,7 @@ local function Elements(self, getParent)
 	function self:AddColorPicker(o)
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 36, h)
+		head(f, o, 36, h, nil, true)
 		local preview = New("Frame", right(f, 20, 20, {}), { Corner(10), Stroke("Border", 0.2) })
 		local hh, ss, vv = (o.Default or T.Accent):ToHSV()
 		local aa = math.clamp(tonumber(o.DefaultAlpha) or 1, 0, 1)
@@ -3057,7 +3074,7 @@ local function Elements(self, getParent)
 	function self:AddColorPickerOld(o)
 		local h = hgt(o)
 		local f = row(h)
-		head(f, o, 36, h)
+		head(f, o, 36, h, nil, true)
 		local preview = New("Frame", right(f, 20, 20, {}), { Corner(10), Stroke("Border", 0.2) })
 		local hh, ss, vv = (o.Default or T.Accent):ToHSV()
 		local sv = New("Frame", {
@@ -3106,7 +3123,7 @@ local function Elements(self, getParent)
 		connect(UIS.InputEnded, function(i) if isPress(i) then mode = nil end end)
 
 		makeDrop(f, h, function() return 112 end)
-		New("TextButton", { Size = UDim2.new(1, 0, 0, h), BackgroundTransparency = 1, Text = "", Parent = f }).MouseButton1Click:Connect(function()
+		New("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", Parent = f }).MouseButton1Click:Connect(function()
 			NextUI._toggleDrop(f)
 		end)
 		function obj:Set(c, silent) hh, ss, vv = c:ToHSV() apply(silent) end
@@ -3121,7 +3138,7 @@ local function Elements(self, getParent)
 		local min, max, inc = o.Min or 0, o.Max or 100, o.Increment or 1
 		local base = hgt(o)
 		local f = row(base + 22)
-		head(f, o, 124, base)
+		head(f, o, 124, base, nil, true)
 		local suffix = o.Suffix or ""
 		local val = Text(f, "", right(f, 112, 20, {
 			TextSize = 11, TextColor3 = "$Sub", TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd,
@@ -3376,7 +3393,7 @@ local function Elements(self, getParent)
 		local min, max = o.Min or 0, o.Max or 100
 		local base = hgt(o)
 		local f = row(base + 20)
-		head(f, o, 74, base)
+		head(f, o, 74, base, nil, true)
 		local val = Text(f, "", right(f, 66, 20, {
 			TextSize = 11, TextColor3 = "$Sub", TextXAlignment = Enum.TextXAlignment.Right,
 		}))
@@ -3509,7 +3526,7 @@ local function Elements(self, getParent)
 		local function relayout()
 			local n = #tabs._list
 			for _, t in ipairs(tabs._list) do
-				t.button.Size = UDim2.new(1 / n, 0, 1, 0)
+				t.button.Size = UDim2.new(1 / n, 0, 0, 34)
 			end
 			slider.Size = UDim2.new(1 / n, 0, 1, 0)
 			if current then slider.Position = UDim2.new((current.index - 1) / n, 0, 0, 0) end
@@ -3522,12 +3539,15 @@ local function Elements(self, getParent)
 			name = tostring(name)
 			local page = {}
 			local btn = New("TextButton", {
-				Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", AutoButtonColor = false,
+				Size = UDim2.new(1, 0, 0, 34), AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 1, Text = "", AutoButtonColor = false,
 				LayoutOrder = #tabs._list + 1, Parent = buttons,
 			})
 			local label = Text(btn, TC(name), {
-				Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 12, Font = T.FontBold,
-				TextColor3 = T.Sub, TextTruncate = Enum.TextTruncate.AtEnd,
+				Size = UDim2.new(1, -8, 0, 28), AutomaticSize = Enum.AutomaticSize.Y,
+				Position = UDim2.fromOffset(4, 3), TextXAlignment = Enum.TextXAlignment.Center,
+				TextYAlignment = Enum.TextYAlignment.Center, TextWrapped = true, TextSize = 12, Font = T.FontBold,
+				TextColor3 = T.Sub, TextTruncate = Enum.TextTruncate.None,
 			})
 			local pf = New("Frame", {
 				Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
@@ -3811,17 +3831,34 @@ function NextUI:CreateWindow(o)
 			local cam = workspace.CurrentCamera
 			vp = cam and cam.ViewportSize or Vector2.new(1280, 720)
 		end
-		return Vector2.new(math.max(math.min(size.X, vp.X - 40), 320), math.max(math.min(size.Y, vp.Y - 40), 240))
+		return Vector2.new(
+			math.max(math.min(size.X, math.max(vp.X - 24, 220)), 220),
+			math.max(math.min(size.Y, math.max(vp.Y - 24, 180)), 180)
+		)
 	end
 	local startFit = maxFit()
 	main.Size = UDim2.fromOffset(startFit.X, startFit.Y)
 	main.Position = UDim2.new(0.5, -startFit.X / 2, 0.5, -startFit.Y / 2)
+	local function updateResponsiveScale()
+		local vp = gui.AbsoluteSize
+		if vp.X <= 0 or vp.Y <= 0 then
+			local cam = workspace.CurrentCamera
+			vp = cam and cam.ViewportSize or Vector2.new(1280, 720)
+		end
+		local w, h = main.Size.X.Offset, main.Size.Y.Offset
+		local fitX = math.max(vp.X - 20, 1)
+		local fitY = math.max(vp.Y - 20, 1)
+		scale.Scale = math.clamp(math.min(1, fitX / math.max(w, 1), fitY / math.max(h, 1)), 0.35, 1)
+	end
+	updateResponsiveScale()
+	connect(main:GetPropertyChangedSignal("Size"), updateResponsiveScale)
 	connect(gui:GetPropertyChangedSignal("AbsoluteSize"), function()
 		local m = maxFit()
 		local cur = main.Size
 		if cur.X.Offset > m.X or cur.Y.Offset > m.Y then
 			main.Size = UDim2.fromOffset(math.min(cur.X.Offset, m.X), math.min(cur.Y.Offset, m.Y))
 		end
+		updateResponsiveScale()
 	end)
 	local function snapMain()
 		if scale.Scale ~= 1 then return end
@@ -3864,9 +3901,11 @@ function NextUI:CreateWindow(o)
 		}),
 	})
 	local logoText = Text(logoClip, TC(o.Title or o.Name or "ZumHub"), {
-		Position = UDim2.fromOffset(18, 0), Size = UDim2.new(1, -18, 1, 0), Font = o.LogoFont or T.FontBold,
-		TextSize = 22, TextColor3 = "$Accent",
+		Position = UDim2.fromOffset(18, 0), Size = UDim2.new(1, -26, 1, 0), Font = o.LogoFont or T.FontBold,
+		TextSize = 22, TextColor3 = "$Accent", TextScaled = true, TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.None,
 	})
+	New("UITextSizeConstraint", { MaxTextSize = fs(22), MinTextSize = 8, Parent = logoText })
 	New("UIStroke", { Color = "$Accent", Transparency = 0.8, Thickness = 1, Parent = logoText })
 	local logoFull = TC(o.Title or o.Name or "ZumHub")
 	local logoImg = New("ImageLabel", {
@@ -4091,13 +4130,24 @@ function NextUI:CreateWindow(o)
 			logoText.Text = logoFull
 			logoText.TextXAlignment = Enum.TextXAlignment.Left
 			logoText.Position = UDim2.fromOffset(18, 0)
-			logoText.Size = UDim2.new(1, -18, 1, 0)
+			logoText.Size = UDim2.new(1, -26, 1, 0)
 		end
 		applyLogo()
 		if profileInfo then profileInfo.Visible = not collapsed end
 		for _, fn in ipairs(collapseHooks) do fn(collapsed) end
 	end
 	setCollapsed(o.Collapsed == true, true)
+	local function syncResponsiveSidebar()
+		local narrow = (main.AbsoluteSize.X / math.max(scale.Scale, 0.01)) < 560
+		if o.AutoCollapse ~= false then
+			setCollapsed(narrow or o.Collapsed == true and collapsed, true)
+		end
+	end
+	connect(main:GetPropertyChangedSignal("AbsoluteSize"), syncResponsiveSidebar)
+	connect(gui:GetPropertyChangedSignal("AbsoluteSize"), function()
+		task.defer(syncResponsiveSidebar)
+	end)
+	syncResponsiveSidebar()
 
 	if o.Resizable ~= false then
 		local baseMin = o.MinSize or Vector2.new(math.max(520, math.floor(size.X * 0.72)), math.max(340, math.floor(size.Y * 0.72)))
@@ -4893,12 +4943,16 @@ function NextUI:CreateWindow(o)
 	function win:IsSidebarCollapsed() return collapsed end
 
 	function win:AddCategory(name)
-		local holder = New("Frame", { Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1, LayoutOrder = nextOrder(), Parent = side })
-		local lbl = Text(holder, TC(name), {
-			Size = UDim2.fromScale(1, 1), Font = T.FontBold, TextSize = 12, TextColor3 = "$Sub",
-			TextTransparency = 0.25, TextTruncate = Enum.TextTruncate.AtEnd,
+		local holder = New("Frame", {
+			Size = UDim2.new(1, 0, 0, 36), AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1, LayoutOrder = nextOrder(), Parent = side,
 		})
-		Pad(6, 0, 0, 0).Parent = lbl
+		local lbl = Text(holder, TC(name), {
+			Size = UDim2.new(1, 0, 0, 36), AutomaticSize = Enum.AutomaticSize.Y,
+			Font = T.FontBold, TextSize = 12, TextColor3 = "$Sub",
+			TextTransparency = 0.25, TextWrapped = true, TextTruncate = Enum.TextTruncate.None,
+		})
+		Pad(6, 4, 0, 4).Parent = lbl
 		local line = New("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.6), Size = UDim2.fromOffset(18, 2),
 			BackgroundColor3 = "$Border", BorderSizePixel = 0, Visible = false, Parent = holder,
@@ -4919,7 +4973,8 @@ function NextUI:CreateWindow(o)
 		tab._badge = type(a) == "table" and a.Badge or nil
 		tab._ctx = { win = win, tab = tab, tabName = parent and (tostring(parent._name) .. " > " .. tostring(name)) or name }
 		local btn = New("TextButton", {
-			Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = "$Element", BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 40), AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundColor3 = "$Element", BackgroundTransparency = 1,
 			Text = "", AutoButtonColor = false, LayoutOrder = nextOrder(), Visible = parent == nil, Parent = side,
 		}, { Corner(5) })
 		local pill = New("Frame", {
@@ -4927,9 +4982,11 @@ function NextUI:CreateWindow(o)
 			BackgroundColor3 = "$Accent", BorderSizePixel = 0, Parent = btn,
 		}, { Corner(2) })
 		local label = Text(btn, TC(name), {
-			Position = UDim2.fromOffset(icon and 44 or 16, 0), Size = UDim2.new(1, icon and -52 or -24, 1, 0),
-			TextColor3 = T.Sub, TextTruncate = Enum.TextTruncate.AtEnd,
+			Position = UDim2.fromOffset(icon and 44 or 16, 0), Size = UDim2.new(1, icon and -52 or -24, 0, 40),
+			AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true,
+			TextColor3 = T.Sub, TextTruncate = Enum.TextTruncate.None,
 		})
+		Pad(0, 6, 0, 6).Parent = label
 		attachTip(label, TC(name))
 		local img
 		if icon then
@@ -4939,7 +4996,7 @@ function NextUI:CreateWindow(o)
 		if tabBadge then
 			tabBadge.AnchorPoint = Vector2.new(1, 8 / 15)
 			tabBadge.Position = UDim2.new(1, -10, 0.5, 0)
-			label.Size = UDim2.new(1, (icon and -52 or -24) - (tabBw + 6), 1, 0)
+			label.Size = UDim2.new(1, (icon and -52 or -24) - (tabBw + 6), 0, 40)
 		end
 
 		local expandedPos, expandedSize = label.Position, label.Size
@@ -4957,7 +5014,7 @@ function NextUI:CreateWindow(o)
 				label.Text = c and firstChar or plainText
 				label.TextXAlignment = c and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
 				label.Position = c and UDim2.fromOffset(0, 0) or expandedPos
-				label.Size = c and UDim2.fromScale(1, 1) or expandedSize
+				label.Size = c and UDim2.new(1, 0, 0, 40) or expandedSize
 			end
 		end
 		table.insert(collapseHooks, applyCollapse)
@@ -4999,6 +5056,18 @@ function NextUI:CreateWindow(o)
 			}, { List(14) })
 		end
 		local colL, colR = column(1), column(2)
+		local colsLayout = cols:FindFirstChildOfClass("UIListLayout")
+		local stacked
+		local function relayoutCols()
+			local narrow = (cols.AbsoluteSize.X / math.max(uiScaleOf(cols), 0.01)) < 460
+			if narrow == stacked then return end
+			stacked = narrow
+			colsLayout.FillDirection = narrow and Enum.FillDirection.Vertical or Enum.FillDirection.Horizontal
+			local columnSize = narrow and UDim2.new(1, 0, 0, 0) or UDim2.new(0.5, -7, 0, 0)
+			colL.Size, colR.Size = columnSize, columnSize
+		end
+		cols:GetPropertyChangedSignal("AbsoluteSize"):Connect(relayoutCols)
+		relayoutCols()
 
 		local selected = false
 		local function paint()
@@ -5051,7 +5120,7 @@ function NextUI:CreateWindow(o)
 				b.Size = UDim2.fromOffset(x0 + tw + 16 + (bw and (bw + 6) or 0), SUBH - 1)
 				local lbl = Text(b, TC(text), {
 					Position = UDim2.fromOffset(x0, 0), Size = UDim2.new(0, tw + 8, 1, 0),
-					Font = T.FontBold, TextSize = 13, TextColor3 = T.Sub,
+					Font = T.FontBold, TextSize = 13, TextColor3 = T.Sub, TextTruncate = Enum.TextTruncate.None,
 				})
 				local line = New("Frame", {
 					AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 8, 1, 0), Size = UDim2.new(1, -16, 0, 2),
@@ -5154,7 +5223,7 @@ function NextUI:CreateWindow(o)
 			local collapseKey = collapsible and (co.CollapseFlag or ("section:" .. tostring(tab._ctx.tabName) .. ":" .. tostring(co.Title))) or nil
 			local arrow, setCollapsed
 			if co.Title then
-				header2 = New("Frame", { Size = UDim2.new(1, 0, 0, 46), BackgroundTransparency = 1, LayoutOrder = 1, Parent = card })
+				header2 = New("Frame", { Size = UDim2.new(1, 0, 0, 46), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = 1, Parent = card })
 				local hasIcon = resolveIcon(co.Icon) ~= nil
 				if hasIcon then
 					Icon(header2, co.Icon, 16, "Accent", { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 14, 0.5, 0) })
@@ -5162,8 +5231,9 @@ function NextUI:CreateWindow(o)
 				local secBadge, secBw = Badge(header2, co.Badge)
 				local secLabel = Text(header2, TC(co.Title), {
 					Position = UDim2.fromOffset(hasIcon and 40 or 14, 0),
-					Size = UDim2.new(1, -((hasIcon and 100 or 76) + (collapsible and 26 or 0) + (secBw and (secBw + 6) or 0)), 1, 0),
-					Font = T.FontBold, TextTruncate = Enum.TextTruncate.AtEnd,
+					Size = UDim2.new(1, -((hasIcon and 100 or 76) + (collapsible and 26 or 0) + (secBw and (secBw + 6) or 0)), 0, 46),
+					AutomaticSize = Enum.AutomaticSize.Y, TextWrapped = true,
+					Font = T.FontBold, TextTruncate = Enum.TextTruncate.None,
 				})
 				attachBadge(secLabel, secBadge, hasIcon and 40 or 14, 23)
 				divider = New("Frame", {
@@ -6480,3 +6550,4 @@ genv.NextUI = NextUI
 
 
 return NextUI
+```
