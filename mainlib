@@ -1,4 +1,3 @@
-```
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -6550,4 +6549,3 @@ genv.NextUI = NextUI
 
 
 return NextUI
-```
