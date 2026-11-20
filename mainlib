@@ -3622,7 +3622,8 @@ local function Elements(self, getParent)
 			end,
 		})
 		self:AddButton({
-			Title = "Load config",
+Title = "Load config",
+Description = "Loads the selected config and automatically restores it when you re-execute the hub",
 			Callback = function()
 				local name = selected()
 				if not name then return end
