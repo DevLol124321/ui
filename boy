@@ -3797,7 +3797,7 @@ function NextUI:CreateWindow(o)
 	end
 	if o.Glass ~= nil then self:SetGlass(o.Glass) end
 
-	local parent = (gethui and gethui()) or (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
+local parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local gui = New("ScreenGui", {
 		Name = "ZumHub", ResetOnSpawn = false, DisplayOrder = 2147483647,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling, IgnoreGuiInset = true,
@@ -5441,9 +5441,8 @@ function NextUI:CreateWindow(o)
 end
 
 local function panelParent()
-	return (gethui and gethui()) or (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
+    return Players.LocalPlayer:WaitForChild("PlayerGui")
 end
-
 local function panelGui()
 	local g = NextUI.PanelGui
 	if g and g.Parent then return g end
